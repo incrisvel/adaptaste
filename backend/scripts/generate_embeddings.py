@@ -11,10 +11,11 @@ from nlp.representations import BERT_MAX_LENGTH, BERT_MODEL, bert_embeddings
 
 
 def build(
-    texts: list[str],
+    reviews: list[dict],
     batch_size: int = 8,
     model_name: str = BERT_MODEL,
 ) -> np.ndarray:
+    texts = [review["text_raw"] for review in reviews]
     return bert_embeddings(texts, batch_size=batch_size, model_name=model_name)
 
 
@@ -51,10 +52,7 @@ def main() -> None:
     args = parser.parse_args()
 
     reviews = asyncio.run(fetch_reviews(args.limit))
-    embeddings = build(
-        [review["text_raw"] for review in reviews],
-        batch_size=args.batch_size,
-    )
+    embeddings = build(reviews, batch_size=args.batch_size)
     directory = save(embeddings)
 
     print(f"BERT: {embeddings.shape[0]} reviews x {embeddings.shape[1]} dims -> {directory}")

@@ -10,8 +10,15 @@ from nlp.corpus import fetch_reviews
 from nlp.representations import build_tfidf
 
 
-def build(texts: list[str]):
-    return build_tfidf(texts)
+def build(reviews: list[dict]):
+    missing = sum(1 for review in reviews if review.get("text_lemmatized") is None)
+
+    if missing:
+        raise ValueError(
+            f"{missing} reviews sem text_lemmatized — rode `make preprocess` antes"
+        )
+
+    return build_tfidf([review["text_lemmatized"].split() for review in reviews])
 
 
 def save(vectorizer, matrix, directory: Path | None = None) -> Path:
@@ -30,7 +37,7 @@ def main() -> None:
     args = parser.parse_args()
 
     reviews = asyncio.run(fetch_reviews(args.limit))
-    vectorizer, matrix = build([review["text_raw"] for review in reviews])
+    vectorizer, matrix = build(reviews)
     directory = save(vectorizer, matrix)
 
     print(f"TF-IDF: {matrix.shape[0]} reviews x {matrix.shape[1]} termos -> {directory}")

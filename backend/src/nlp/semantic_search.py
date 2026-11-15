@@ -4,6 +4,7 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 
 from nlp import artifacts
+from nlp.preprocessing import preprocess
 from nlp.representations import bert_embeddings, transform_tfidf
 
 Representation = Literal["bert", "tfidf"]
@@ -18,8 +19,10 @@ def search(
     index = artifacts.load_review_index()
 
     if representation == "tfidf":
+        # mesma cadeia que gerou o text_lemmatized do corpus
+        documents = [preprocess(query)["lemmatized"]]
         matrix = artifacts.load_tfidf_matrix()
-        vector = transform_tfidf(artifacts.load_tfidf_vectorizer(), [query])
+        vector = transform_tfidf(artifacts.load_tfidf_vectorizer(), documents)
         similarities = cosine_similarity(vector, matrix)[0]
     else:
         embeddings = artifacts.load_bert_embeddings()

@@ -1,4 +1,3 @@
-import re
 from functools import cache
 from typing import TYPE_CHECKING
 
@@ -25,12 +24,6 @@ def stopwords_pt() -> frozenset[str]:
 
 
 @cache
-def stopwords_search() -> frozenset[str]:
-    # 'muito' é o token mais frequente do corpus: na busca volta a ser stopword.
-    return stopwords_pt() | {"muito"}
-
-
-@cache
 def get_nlp() -> "Language":
     import spacy
 
@@ -52,25 +45,9 @@ def normalize(tokens: list[str]) -> list[str]:
     return [token.casefold() for token in tokens if token.isalpha()]
 
 
-def normalize_search(tokens: list[str]) -> list[str]:
-    # Variante da busca: preserva hífen e descarta dígito.
-    cleaned = [
-        re.sub(r"[^\wÀ-ÿ-]", "", token.casefold()).strip("-")
-        for token in tokens
-    ]
-    return [
-        token
-        for token in cleaned
-        if token and not any(char.isdigit() for char in token)
-    ]
-
-
-def remove_stopwords(
-    tokens: list[str],
-    vocabulary: frozenset[str] | None = None,
-) -> list[str]:
-    stop = stopwords_pt() if vocabulary is None else vocabulary
-    return [token for token in tokens if token not in stop]
+def remove_stopwords(tokens: list[str]) -> list[str]:
+    vocabulary = stopwords_pt()
+    return [token for token in tokens if token not in vocabulary]
 
 
 def stem(tokens: list[str]) -> list[str]:
@@ -108,11 +85,3 @@ def preprocess(text: str) -> dict[str, list]:
         "lemmatized": lemmatized,
         "bigrams": bigrams(lemmatized),
     }
-
-
-def search_tokens(text: str) -> list[str]:
-    """Tokens do índice TF-IDF (cadeia do semantic_search)."""
-    return remove_stopwords(
-        normalize_search(tokenize(clean_text(text))),
-        stopwords_search(),
-    )

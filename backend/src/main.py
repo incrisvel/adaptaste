@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from modules.reviews.router import router as reviews_router
+from application.router import router
 from core.db.mongo import client, db
 
 
@@ -15,4 +15,4 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-app.include_router(reviews_router)
+app.include_router(router)

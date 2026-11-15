@@ -1,14 +1,21 @@
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from functools import cache
 
 import numpy as np
 from scipy import sparse
 from sklearn.feature_extraction.text import TfidfVectorizer
-
-from nlp.preprocessing import search_tokens
+from sklearn.metrics.pairwise import cosine_similarity
 
 BERT_MODEL = "neuralmind/bert-base-portuguese-cased"
 BERT_MAX_LENGTH = 128
+
+
+def cosine_ranking(matrix, vector) -> tuple[np.ndarray, np.ndarray]:
+    """Linhas da matriz em ordem de similaridade decrescente, com as similaridades."""
+    similarities = cosine_similarity(vector, matrix)[0]
+    order = np.argsort(-similarities)
+
+    return order, similarities[order]
 
 
 def identity_tokens(tokens: Iterable[str]) -> list[str]:
@@ -16,21 +23,20 @@ def identity_tokens(tokens: Iterable[str]) -> list[str]:
     return list(tokens)
 
 
-def tfidf_documents(texts: Iterable[str]) -> list[list[str]]:
-    return [search_tokens(text) for text in texts]
-
-
-def build_tfidf(texts: Iterable[str]) -> tuple[TfidfVectorizer, sparse.csr_matrix]:
+def build_tfidf(
+    documents: Iterable[Sequence[str]],
+) -> tuple[TfidfVectorizer, sparse.csr_matrix]:
+    """`documents` já vem tokenizado (text_lemmatized.split(), por exemplo)."""
     vectorizer = TfidfVectorizer(analyzer=identity_tokens)
-    matrix = vectorizer.fit_transform(tfidf_documents(texts))
+    matrix = vectorizer.fit_transform(documents)
     return vectorizer, matrix
 
 
 def transform_tfidf(
     vectorizer: TfidfVectorizer,
-    texts: Iterable[str],
+    documents: Iterable[Sequence[str]],
 ) -> sparse.csr_matrix:
-    return vectorizer.transform(tfidf_documents(texts))
+    return vectorizer.transform(documents)
 
 
 @cache
