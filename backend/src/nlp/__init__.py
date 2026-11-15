@@ -1,0 +1,1 @@
+EXTREME_RATINGS = (1, 2, 4, 5)
