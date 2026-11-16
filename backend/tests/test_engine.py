@@ -1,6 +1,7 @@
 import asyncio
 from collections import Counter
 
+from application.router import list_recommendations
 from recommendation import candidate_retriever, engine
 
 
@@ -28,6 +29,7 @@ def prepare(monkeypatch):
     monkeypatch.setattr(candidate_retriever, "retrieve_all", fake_retrieve_all)
     monkeypatch.setattr(engine, "place_names", lambda ids: _async({"p1": "A"}))
     monkeypatch.setattr(engine, "place_analyses", lambda ids: _async({}))
+    monkeypatch.setattr(engine, "place_metadata", lambda ids: _async({}))
     monkeypatch.setattr(engine, "_reviews_indexed", lambda: Counter({"p1": 1, "p2": 2}))
 
 
@@ -61,3 +63,43 @@ def test_recommend_traz_as_evidencias(monkeypatch):
     assert result[0]["reviews_indexed"] == 1
     assert result[0]["components"]["relevance"] == 1.0
     assert set(result[0]["mechanisms"]) == {"review_bert"}
+
+
+def test_get_recommendations_encaminha_prioridades_e_localizacao(monkeypatch):
+    captured = {}
+
+    async def fake_recommend(query, k, priorities=None, location=None):
+        captured.update(
+            query=query,
+            k=k,
+            priorities=priorities,
+            location=location,
+        )
+        return []
+
+    monkeypatch.setattr("application.router.engine.recommend", fake_recommend)
+
+    asyncio.run(
+        list_recommendations(
+            "vegano",
+            5,
+            dietary_suitability=4,
+            distance=3,
+            rating=2,
+            meal_time=1,
+            latitude=-26.9,
+            longitude=-49.0,
+        )
+    )
+
+    assert captured == {
+        "query": "vegano",
+        "k": 5,
+        "priorities": {
+            "dietary_suitability": 4,
+            "distance": 3,
+            "rating": 2,
+            "meal_time": 1,
+        },
+        "location": {"latitude": -26.9, "longitude": -49.0},
+    }

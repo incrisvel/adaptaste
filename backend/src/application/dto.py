@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from domain.models.coordinates import Coordinates
 
@@ -14,10 +14,10 @@ class PlaceSearch(BaseModel):
 
 
 class RecommendationPriorities(BaseModel):
-    distance: int = 1
-    dietary_suitability: int = 1
-    rating: int = 1
-    meal_time: int = 1
+    distance: int = Field(1, ge=1, le=5)
+    dietary_suitability: int = Field(1, ge=1, le=5)
+    rating: int = Field(1, ge=1, le=5)
+    meal_time: int = Field(1, ge=1, le=5)
 
 
 class RecommendationRequest(BaseModel):

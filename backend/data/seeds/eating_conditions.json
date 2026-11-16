@@ -1,0 +1,67 @@
+[
+  {
+    "id": "diabetes",
+    "name": "Diabetes",
+    "related_terms": ["diabético", "diabética", "diabetes", "sem açúcar", "baixo açúcar", "low carb"]
+  },
+  {
+    "id": "celiac",
+    "name": "Doença celíaca",
+    "related_terms": ["celíaco", "celíaca", "doença celíaca", "sem glúten", "gluten free"]
+  },
+  {
+    "id": "vegan",
+    "name": "Veganismo",
+    "related_terms": ["vegano", "vegana", "veganismo", "100% vegetal", "à base de plantas"]
+  },
+  {
+    "id": "vegetarian",
+    "name": "Vegetarianismo",
+    "related_terms": ["vegetariano", "vegetariana", "vegetarianismo", "sem carne"]
+  },
+  {
+    "id": "lactose_intolerance",
+    "name": "Intolerância à lactose",
+    "related_terms": ["intolerante à lactose", "intolerância à lactose", "sem lactose", "lactose free"]
+  },
+  {
+    "id": "milk_allergy",
+    "name": "Alergia à proteína do leite",
+    "related_terms": ["alergia ao leite", "alergia à proteína do leite", "aplv", "sem leite"]
+  },
+  {
+    "id": "gluten_sensitivity",
+    "name": "Sensibilidade ao glúten",
+    "related_terms": ["sensível ao glúten", "sensibilidade ao glúten", "restrição ao glúten"]
+  },
+  {
+    "id": "egg_allergy",
+    "name": "Alergia a ovo",
+    "related_terms": ["alérgico a ovo", "alérgica a ovo", "alergia a ovo", "sem ovo"]
+  },
+  {
+    "id": "peanut_allergy",
+    "name": "Alergia a amendoim",
+    "related_terms": ["alérgico a amendoim", "alérgica a amendoim", "alergia a amendoim", "sem amendoim"]
+  },
+  {
+    "id": "low_sodium",
+    "name": "Restrição de sódio",
+    "related_terms": ["baixo sódio", "pouco sal", "sem sal", "hipossódico"]
+  },
+  {
+    "id": "pescatarian",
+    "name": "Pescetarianismo",
+    "related_terms": ["pescetariano", "pescetariana", "pescetarianismo", "sem carne vermelha"]
+  },
+  {
+    "id": "halal",
+    "name": "Alimentação halal",
+    "related_terms": ["halal", "comida halal"]
+  },
+  {
+    "id": "kosher",
+    "name": "Alimentação kosher",
+    "related_terms": ["kosher", "comida kosher"]
+  }
+]

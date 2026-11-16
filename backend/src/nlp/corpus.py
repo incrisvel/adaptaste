@@ -65,6 +65,24 @@ async def place_names(place_ids: list[str]) -> dict[str, str]:
     return {place["id"]: place.get("name") for place in await cursor.to_list(None)}
 
 
+async def place_metadata(place_ids: list[str]) -> dict[str, dict]:
+    if not place_ids:
+        return {}
+
+    cursor = db.places.find(
+        {"id": {"$in": place_ids}},
+        {
+            "_id": 0,
+            "id": 1,
+            "rating": 1,
+            "coordinates": 1,
+            "location": 1,
+            "meal_time": 1,
+        },
+    )
+    return {place["id"]: place for place in await cursor.to_list(None)}
+
+
 async def place_analyses(place_ids: list[str]) -> dict[str, dict]:
     """Scores consolidados por estabelecimento — o que o ranking consome."""
     if not place_ids:

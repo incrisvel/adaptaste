@@ -4,6 +4,7 @@ from recommendation.ranking_service import (
     ANALYSIS_WEIGHTS,
     RELEVANCE_WEIGHT,
     fuse,
+    prioritize,
     rerank,
 )
 
@@ -135,3 +136,50 @@ def test_rerank_nao_usa_analise_de_componente_ausente():
     assert ranked[0]["components"]["dietary"] == 0.0
     assert ranked[0]["components"]["aspect"] is None
     assert ranked[0]["score"] == pytest.approx(RELEVANCE_WEIGHT / disponivel)
+
+
+def test_prioritize_aplica_pesos_sem_zerar_os_outros_criterios():
+    candidates = [
+        {"place_id": "p1", "score": 1.0, "name": "A"},
+        {"place_id": "p2", "score": 0.8, "name": "B"},
+    ]
+    priorities = {
+        "dietary_suitability": 4,
+        "distance": 4,
+        "rating": 2,
+        "meal_time": 1,
+    }
+    metadata = {
+        "p1": {"rating": 4.0, "coordinates": {"latitude": -26.9, "longitude": -49.0}},
+        "p2": {"rating": 5.0, "coordinates": {"latitude": -26.91, "longitude": -49.01}},
+    }
+
+    ranked = prioritize(
+        candidates,
+        priorities,
+        metadata,
+        analyses={"p1": {"dietary": 1.0}, "p2": {"dietary": 0.0}},
+        location={"latitude": -26.9, "longitude": -49.0},
+    )
+
+    assert ranked[0]["place_id"] == "p1"
+    assert ranked[0]["criteria"]["distance"] == pytest.approx(1.0)
+    assert ranked[0]["criteria"]["rating"] == pytest.approx(0.8)
+    assert ranked[0]["score"] < 1.0
+    assert ranked[0]["score"] > ranked[1]["score"]
+
+
+def test_prioritize_ignora_criterio_sem_dados():
+    candidates = [{"place_id": "p1", "score": 0.5, "name": "A"}]
+
+    ranked = prioritize(
+        candidates,
+        {"dietary_suitability": 1, "distance": 1, "rating": 1, "meal_time": 1},
+        metadata={},
+        analyses={},
+        location=None,
+    )
+
+    assert ranked[0]["criteria"]["distance"] is None
+    assert ranked[0]["criteria"]["meal_time"] is None
+    assert ranked[0]["score"] == pytest.approx(1 / 2)

@@ -2,9 +2,9 @@ from collections import Counter
 from functools import cache
 
 from nlp.artifacts import load_review_index
-from nlp.corpus import place_analyses, place_names
+from nlp.corpus import place_analyses, place_metadata, place_names
 from recommendation import candidate_retriever
-from recommendation.ranking_service import fuse, rerank
+from recommendation.ranking_service import fuse, prioritize, rerank
 from recommendation.relevance_scorer import RRF_K, aggregate
 
 
@@ -14,7 +14,13 @@ def _reviews_indexed() -> Counter:
     return Counter(entry["place_id"] for entry in load_review_index())
 
 
-async def recommend(query: str, k: int = 10, rrf_k: int = RRF_K) -> list[dict]:
+async def recommend(
+    query: str,
+    k: int = 10,
+    rrf_k: int = RRF_K,
+    priorities: dict[str, int] | None = None,
+    location: dict | None = None,
+) -> list[dict]:
     """Estabelecimentos para a consulta, com as evidências de cada mecanismo."""
     encoded = candidate_retriever.encode_query(query)
     results = {
@@ -30,8 +36,22 @@ async def recommend(query: str, k: int = 10, rrf_k: int = RRF_K) -> list[dict]:
 
     names = await place_names(place_ids)
     analyses = await place_analyses(place_ids)
+    metadata = await place_metadata(place_ids)
 
     ranked = rerank(candidates, analyses, names)
+    ranked = prioritize(
+        ranked,
+        priorities
+        or {
+            "dietary_suitability": 1,
+            "distance": 1,
+            "rating": 1,
+            "meal_time": 1,
+        },
+        metadata,
+        analyses,
+        location,
+    )
     reviews_indexed = _reviews_indexed()
 
     for candidate in ranked:
