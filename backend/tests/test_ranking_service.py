@@ -169,6 +169,26 @@ def test_prioritize_aplica_pesos_sem_zerar_os_outros_criterios():
     assert ranked[0]["score"] > ranked[1]["score"]
 
 
+def test_prioritize_le_coordenadas_geojson():
+    candidates = [{"place_id": "p1", "score": 1.0, "name": "A"}]
+    metadata = {
+        "p1": {
+            "rating": 4.0,
+            "coordinates": {"type": "Point", "coordinates": [-26.9, -49.0]},
+        }
+    }
+
+    ranked = prioritize(
+        candidates,
+        {"distance": 1},
+        metadata,
+        analyses={},
+        location={"latitude": -26.9, "longitude": -49.0},
+    )
+
+    assert ranked[0]["criteria"]["distance"] == pytest.approx(1.0)
+
+
 def test_prioritize_ignora_criterio_sem_dados():
     candidates = [{"place_id": "p1", "score": 0.5, "name": "A"}]
 

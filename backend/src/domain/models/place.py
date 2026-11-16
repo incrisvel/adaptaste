@@ -1,15 +1,18 @@
 from pydantic import BaseModel
 
-from domain.models.coordinates import Coordinates
+from domain.models.coordinates import GeoPoint
 
 
 class Place(BaseModel):
     id: str
     name: str
-    rating: str
+    rating: float
     address: str
-    coordinates: Coordinates
-    image_url: str
     google_maps_url: str
-    gemini_sumary: str
-    tripadvisor_description: str
+    google_maps_description: str | None = None
+    gemini_summary: str | None = None
+    tripadvisor_description: str | None = None
+    image_url: str
+    coordinates: GeoPoint
+    opening_hours: dict[str, list[str]]
+    meal_categories: list[str]

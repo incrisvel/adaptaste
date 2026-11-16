@@ -76,8 +76,7 @@ async def place_metadata(place_ids: list[str]) -> dict[str, dict]:
             "id": 1,
             "rating": 1,
             "coordinates": 1,
-            "location": 1,
-            "meal_time": 1,
+            "meal_categories": 1,
         },
     )
     return {place["id"]: place for place in await cursor.to_list(None)}

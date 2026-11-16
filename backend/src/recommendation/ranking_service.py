@@ -115,6 +115,9 @@ def _coordinates(value: dict | None) -> tuple[float, float] | None:
         return None
 
     try:
+        if "coordinates" in value:  # Point do banco: [latitude, longitude]
+            latitude, longitude = value["coordinates"]
+            return float(latitude), float(longitude)
         return float(value["latitude"]), float(value["longitude"])
     except (KeyError, TypeError, ValueError):
         return None
@@ -146,9 +149,7 @@ def prioritize(
     if user_location:
         for candidate in candidates:
             place = metadata.get(candidate["place_id"], {})
-            coordinates = _coordinates(
-                place.get("coordinates") or place.get("location")
-            )
+            coordinates = _coordinates(place.get("coordinates"))
             if coordinates:
                 distances[candidate["place_id"]] = _distance_km(
                     user_location, coordinates
@@ -176,6 +177,7 @@ def prioritize(
                 if place.get("rating") is not None
                 else None
             ),
+            # shortcut: places não tem mais meal_time; ligar meal_categories quando houver filtro por refeição
             "meal_time": place.get("meal_time"),
         }
         weights = {"relevance": 1, **priorities}

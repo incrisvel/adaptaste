@@ -1,0 +1,7 @@
+opencode.json
+backend/artifacts/
+__pycache__/
+*.py[cod]
+.venv/
+reviews_preprocessed.json
+.ipynb_checkpoints
